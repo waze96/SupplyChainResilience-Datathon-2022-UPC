@@ -45,6 +45,7 @@ setwd("C:/Users/David/Documents/GitHub/")
 
 
 orders<-read.csv("./PREPROCED_DATA/orders.csv", sep = ",")
+orders <- orders[,c(2:10)]
 product<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/RAW_DATA/product_attributes.csv", sep = ",")
 cities<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/RAW_DATA/cities_data.csv", sep = ";")
 
@@ -106,14 +107,48 @@ res.cat$test.chi2
 res.cat$category
 res.cat$quanti.var; res.cat$quanti
 
-res.cat=catdes(orders[,c(2,9)], 2, proba = 0.01) 
-res.cat$test.chi2
-res.cat$category
-res.cat$quanti.var; res.cat$quanti
 
 
 ```
+```{R}
 
+
+
+
+
+
+
+
+i=1
+for (var1 in factorDf[-length(factorDf)]) {
+  factorDf3 <- factorDf[-c(1:i)]
+  j=1
+  for(var2 in factorDf3) {
+    if(attributes(factorDf[i])$names != "Attrition" && attributes(factorDf3[j])$names != "Attrition"){
+      chisq_test <- chisq.test(var1, var2)
+      if(chisq_test$p.value < 0.01) {
+        print(paste0(attributes(factorDf[i])$names, " | ", attributes(factorDf3[j])$names, " | p-value ", chisq_test$p.value))
+        #print(table(var1,var2))
+      }
+    }
+    j=j+1
+  }
+  i=i+1
+}
+
+ggplot(df, aes(Department, ..count..)) + geom_bar(aes(fill = EducationField), position = "dodge")
+ggplot(df, aes(Department, ..count..)) + geom_bar(aes(fill = JobLevel), position = "dodge")
+ggplot(df, aes(Department, ..count..)) + geom_bar(aes(fill = JobRole), position = "dodge")
+ggplot(df, aes(Education, ..count..)) + geom_bar(aes(fill = JobLevel), position = "dodge")
+ggplot(df, aes(EducationField, ..count..)) + geom_bar(aes(fill = JobLevel), position = "dodge")
+ggplot(df, aes(EducationField, ..count..)) + geom_bar(aes(fill = JobRole), position = "dodge")
+ggplot(df, aes(JobLevel, ..count..)) + geom_bar(aes(fill = JobRole), position = "dodge")
+ggplot(df, aes(JobLevel, ..count..)) + geom_bar(aes(fill = StockOptionLevel), position = "dodge")
+ggplot(df, aes(MaritalStatus, ..count..)) + geom_bar(aes(fill = StockOptionLevel), position = "dodge")
+
+
+
+```
 
 
 
