@@ -21,6 +21,8 @@ if(!is.null(dev.list())) dev.off()
 # Clean workspace
 rm(list=ls())
 #library
+library(zoo)
+library(rcompanion)
 library(stats)
 library(dplyr)
 library(fpc)
@@ -56,7 +58,9 @@ You can also embed plots, for example:
 ```{r pressure, echo=FALSE}
 summary(orders)
 Null<-which(orders$logistic_hub == '')
-orders$logistic_hub[Null]<-NA
+orders$logistic_hub<-as.factor(orders$logistic_hub)
+levels(orders$logistic_hub) <- c(levels(orders$logistic_hub), "Direct shipment")
+orders$logistic_hub[Null]<-"Direct shipment"
 summary(product)
 summary(cities)
 str(orders)
@@ -71,7 +75,15 @@ hist(product$material_handling,5)
 boxplot(orders$units)
 qqPlot(orders$units)
 ks.test(orders$units, pnorm)
-
+barplot(table(orders$origin_port))
+Athens<-which(orders$origin_port == "ATHENAS")
+Barcelona<-which(orders$origin_port == "BCN")
+orders$origin_port[Athens]<-"Athens"
+orders$origin_port[Barcelona]<-"Barcelona"
+#catdes
+names(orders)
+res.cat<-catdes(orders[,c(7,8,9)], num.var = 3, proba = 0.05)
+res.cat$quanti
 
 ```
 
