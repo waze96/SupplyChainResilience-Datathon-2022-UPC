@@ -21,6 +21,7 @@ if(!is.null(dev.list())) dev.off()
 # Clean workspace
 rm(list=ls())
 #library
+library(labelled)
 library(zoo)
 library(rcompanion)
 library(stats)
@@ -44,7 +45,7 @@ library(visdat)
 setwd("C:/Users/David/Documents/GitHub/")
 
 
-orders<-read.csv("./PREPROCED_DATA/orders.csv", sep = ";")
+orders<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/RAW_DATA/orders.csv", sep = ";")
 product<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/RAW_DATA/product_attributes.csv", sep = ",")
 cities<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/RAW_DATA/cities_data.csv", sep = ";")
 
@@ -80,10 +81,38 @@ Athens<-which(orders$origin_port == "ATHENAS")
 Barcelona<-which(orders$origin_port == "BCN")
 orders$origin_port[Athens]<-"Athens"
 orders$origin_port[Barcelona]<-"Barcelona"
+#export
+write.csv(orders,"C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/PREPROCED_DATA/orders.csv", row.names = FALSE)
+#EXPORT
+table(orders[,-c(1,8)])
+barplot(table(orders$customer))
+late<- table(orders$late_order, orders$origin_port)
+late<-prop.table(late,margin = 2)
+#origin
+barplot(late,  main = "Delay by origin port", ylab = "Proportion", col = c("green", "red"))
+legend(x = "topright", legend = c("No", "Yes"), fill = c("green", "red"), title = "Delay")
+#logistic
+late<- table(orders$late_order, orders$logistic_hub)
+late<-prop.table(late,margin = 2)
+barplot(late,  main = "Delay by logistic hub", ylab = "Proportion", col = c("green", "red"), las = 2, width = 0.5, legend= TRUE) 
+#procedures and 3pl
+late<- table(orders$late_order, orders$customs_procedures)
+late<-prop.table(late,margin = 2)
+barplot(late,  main = "Delay by logistic hub", ylab = "Proportion", col = c("green", "red"), las = 2, width = 0.5, legend= TRUE) 
+late<- table(orders$late_order, orders$X3pl)
+late<-prop.table(late,margin = 2)
+barplot(late,  main = "Delay by logistic hub", ylab = "Proportion", col = c("green", "red"), las = 2, width = 0.5, legend= TRUE) 
+late<- table(orders$late_order, orders$customer)
+late<-prop.table(late,margin = 2)
+barplot(late,  main = "Delay by logistic hub", ylab = "Proportion", col = c("green", "red"), las = 2, width = 0.5, legend.text = TRUE, 
+        args.legend = list(x = "topright",
+                           inset = c(0, 0.70)))
+#legend(x = "topright", legend = c("No", "Yes"), fill = c("green", "red"), title = "Delay")
 #catdes
 names(orders)
 res.cat<-catdes(orders[,c(7,8,9)], num.var = 3, proba = 0.05)
 res.cat$quanti
+#Descriptive analysis with merge
 
 ```
 
@@ -99,6 +128,7 @@ con.des<-condes(orders[,c(2:9)], num.var=8, proba = 0.05 )
 names(orders[,c(2:6,8,9)])
 
 library(FactoMineR)
+fa
 names(orders)
 
 res.cat=catdes(orders[,c(2:6,8,9)], 7, proba = 0.01) 
@@ -106,7 +136,9 @@ res.cat$test.chi2
 res.cat$category
 res.cat$quanti.var; res.cat$quanti
 
-res.cat=catdes(orders[,c(2,9)], 2, proba = 0.01) 
+
+
+res.cat=catdes(orders[,c(4,9)], 2, proba = 0.01) 
 res.cat$test.chi2
 res.cat$category
 res.cat$quanti.var; res.cat$quanti
