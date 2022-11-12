@@ -40,7 +40,9 @@ library(effects)
 library(AER)
 library(visdat)
 setwd("C:/Users/David/Documents/GitHub/")
-orders<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/RAW_DATA/orders.csv", sep = ";")
+
+
+orders<-read.csv("./RAW_DATA/orders.csv", sep = ";")
 product<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/RAW_DATA/product_attributes.csv", sep = ",")
 cities<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/RAW_DATA/cities_data.csv", sep = ";")
 
@@ -73,4 +75,36 @@ ks.test(orders$units, pnorm)
 
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+
+
+```{R}
+names(orders)
+
+con.des<-condes(orders[,c(2:9)], num.var=8, proba = 0.05 )
+
+names(orders[,c(2:6,8,9)])
+
+library(FactoMineR)
+names(orders)
+
+res.cat=catdes(orders[,c(2:6,8,9)], 7, proba = 0.01) 
+res.cat$test.chi2
+res.cat$category
+res.cat$quanti.var; res.cat$quanti
+
+
+
+res.cat=catdes(orders[,c(4,9)], 2, proba = 0.01) 
+res.cat$test.chi2
+res.cat$category
+res.cat$quanti.var; res.cat$quanti
+
+
+```
+
+
+
+
+
