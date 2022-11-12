@@ -44,7 +44,7 @@ library(visdat)
 setwd("C:/Users/David/Documents/GitHub/")
 
 
-orders<-read.csv("./PREPROCED_DATA/orders.csv", sep = ";")
+orders<-read.csv("./PREPROCED_DATA/orders.csv", sep = ",")
 product<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/RAW_DATA/product_attributes.csv", sep = ",")
 cities<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/RAW_DATA/cities_data.csv", sep = ";")
 
