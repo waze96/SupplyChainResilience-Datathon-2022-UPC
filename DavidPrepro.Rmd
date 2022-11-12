@@ -1,0 +1,76 @@
+---
+title: "ACCENTURE"
+output: html_document
+date: "2022-11-12"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+# Clear plots
+if(!is.null(dev.list())) dev.off()
+
+# Clean workspace
+rm(list=ls())
+#library
+library(stats)
+library(dplyr)
+library(fpc)
+library(reshape2)
+library(tidyr)
+library(ggplot2)
+library(stats)
+library(cluster)
+library(factoextra)
+library(colorspace)
+library(ggpubr)
+library(NbClust)
+library(car)
+library(FactoMineR)
+library(lmtest)
+library(effects)
+library(AER)
+library(visdat)
+setwd("C:/Users/David/Documents/GitHub/")
+orders<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/RAW_DATA/orders.csv", sep = ";")
+product<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/RAW_DATA/product_attributes.csv", sep = ",")
+cities<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/RAW_DATA/cities_data.csv", sep = ";")
+
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+summary(orders)
+Null<-which(orders$logistic_hub == '')
+orders$logistic_hub[Null]<-NA
+summary(product)
+summary(cities)
+str(orders)
+str(product)
+str(cities)
+vis_miss(orders,warn_large_data = FALSE)
+vis_miss(product)
+vis_miss(cities)
+hist(orders$units, 100)
+hist(product$weight, 20)
+hist(product$material_handling,5)
+boxplot(orders$units)
+qqPlot(orders$units)
+ks.test(orders$units, pnorm)
+
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
