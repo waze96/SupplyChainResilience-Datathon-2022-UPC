@@ -1,0 +1,284 @@
+---
+title: "ACCENTURE"
+output: html_document
+date: "2022-11-12"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+# Clear plots
+if(!is.null(dev.list())) dev.off()
+
+# Clean workspace
+rm(list=ls())
+#library
+library(labelled)
+library(zoo)
+library(rcompanion)
+library(stats)
+library(dplyr)
+library(fpc)
+library(reshape2)
+library(tidyr)
+library(ggplot2)
+library(stats)
+library(cluster)
+library(factoextra)
+library(colorspace)
+library(ggpubr)
+library(NbClust)
+library(car)
+library(FactoMineR)
+library(lmtest)
+library(effects)
+library(AER)
+library(visdat)
+setwd("C:/Users/David/Documents/GitHub/")
+
+
+orders<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/RAW_DATA/orders.csv", sep = ";")
+product<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/RAW_DATA/product_attributes.csv", sep = ",")
+cities<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/RAW_DATA/cities_data.csv", sep = ";")
+test<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/JOINED_DATA/df_test.csv", sep = ",")
+df<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/JOINED_DATA/df_joined.csv", sep = ",")
+
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+#test preprocesing
+Athens<-which(test$origin_port == "ATHENAS")
+Barcelona<-which(test$origin_port == "BCN")
+test$origin_port[Athens]<-"Athens"
+test$origin_port[Barcelona]<-"Barcelona"
+Null2<-which(test$logistic_hub == '')
+test$logistic_hub<-as.factor(test$logistic_hub)
+levels(test$logistic_hub) <- c(levels(test$logistic_hub), "Direct shipment")
+test$logistic_hub[Null2]<-"Direct shipment"
+#export
+#write.csv(test,"C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/JOINED_DATA/PreTest2.csv", row.names = FALSE)
+#EXPORT
+summary(orders)
+Null<-which(orders$logistic_hub == '')
+orders$logistic_hub<-as.factor(orders$logistic_hub)
+levels(orders$logistic_hub) <- c(levels(orders$logistic_hub), "Direct shipment")
+orders$logistic_hub[Null]<-"Direct shipment"
+summary(product)
+summary(cities)
+str(orders)
+str(product)
+str(cities)
+vis_miss(orders,warn_large_data = FALSE)
+vis_miss(product)
+vis_miss(cities)
+hist(orders$units, 100)
+hist(product$weight, 20)
+hist(product$material_handling,5)
+boxplot(orders$units)
+qqPlot(orders$units)
+ks.test(orders$units, pnorm)
+barplot(table(orders$origin_port))
+Athens<-which(orders$origin_port == "ATHENAS")
+Barcelona<-which(orders$origin_port == "BCN")
+orders$origin_port[Athens]<-"Athens"
+orders$origin_port[Barcelona]<-"Barcelona"
+#export
+#write.csv(orders,"C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/PREPROCED_DATA/orders.csv", row.names = FALSE)
+#EXPORT
+table(orders[,-c(1,8)])
+barplot(table(orders$customer))
+late<- table(orders$late_order, orders$origin_port)
+late<-prop.table(late,margin = 2)
+#origin
+barplot(late,  main = "Delay by origin port", ylab = "Proportion", col = c("green", "red"))
+legend(x = "topright", legend = c("No", "Yes"), fill = c("green", "red"), title = "Delay")
+#logistic
+late<- table(orders$late_order, orders$logistic_hub)
+late<-prop.table(late,margin = 2)
+barplot(late,  main = "Delay by logistic hub", ylab = "Proportion", col = c("green", "red"), las = 2, width = 0.5, legend= TRUE) 
+#procedures and 3pl claro problema en v001, proporcionalmente muchos delays
+late<- table(orders$late_order, orders$customs_procedures)
+late<-prop.table(late,margin = 2)
+barplot(late,  main = "Delay by logistic hub", ylab = "Proportion", col = c("green", "red"), las = 2, width = 0.5, legend= TRUE) 
+late<- table(orders$late_order, orders$X3pl)
+late<-prop.table(late,margin = 2)
+barplot(late,  main = "Delay by logistic hub", ylab = "Proportion", col = c("green", "red"), las = 2, width = 0.5, legend= TRUE) 
+late<- table(orders$late_order, orders$customer)
+late<-prop.table(late,margin = 2)
+barplot(late,  main = "Delay by logistic hub", ylab = "Proportion", col = c("green", "red"), las = 2, width = 0.5, legend.text = TRUE, 
+        args.legend = list(x = "topright",
+                           inset = c(0, 0.70)))
+#legend(x = "topright", legend = c("No", "Yes"), fill = c("green", "red"), title = "Delay")
+#catdes
+names(orders)
+res.cat<-catdes(orders[,c(7,8,9)], num.var = 3, proba = 0.05)
+res.cat$quanti
+counts <- table(df$origin_port, df$late_orde)
+mosaicplot(counts, xlab='Origin port', ylab='Delay',main='Delays by port', col='red')
+#Descriptive analysis numeric with merge
+#late order
+ggplot(df, aes(x=units, y=late_order)) +
+  geom_boxplot()
+
+ggplot(df, aes(x=weight, y=late_order)) +
+  geom_boxplot()
+
+ggplot(df, aes(x=material_handling, y=late_order)) +
+  geom_boxplot()
+
+ggplot(df, aes(x=distance_port_hub, y=late_order)) +
+  geom_boxplot()
+ggplot(df, aes(x=distance_hub_customer, y=late_order)) +
+  geom_boxplot()
+ggplot(df, aes(x=distance_total, y=late_order)) +
+  geom_boxplot()
+
+
+# Origin port
+
+ggplot(df, aes(x=units, y=origin_port)) +
+  geom_boxplot()
+
+ggplot(df, aes(x=weight, y=origin_port)) +
+  geom_boxplot()
+
+ggplot(df, aes(x=material_handling, y=origin_port)) +
+  geom_boxplot()
+
+ggplot(df, aes(x=distance_port_hub, y=origin_port,color=late_order)) +
+  geom_boxplot() #indica que los problemas ocurren en el trayecto de hub- customer?
+ggplot(df, aes(x=distance_hub_customer, y=origin_port)) +
+  geom_boxplot()
+ggplot(df, aes(x=distance_total, y=origin_port,color=late_order)) +
+  geom_boxplot()
+
+# logistic
+ggplot(df, aes(x=units, y=logistic_hub)) +
+  geom_boxplot()
+
+ggplot(df, aes(x=weight, y=logistic_hub)) +
+  geom_boxplot()
+
+ggplot(df, aes(x=material_handling, y=logistic_hub)) +
+  geom_boxplot()
+
+ggplot(df, aes(x=distance_port_hub, y=logistic_hub,color=late_order)) +
+  geom_boxplot()
+ggplot(df, aes(x=distance_port_hub, y=logistic_hub, color=origin_port)) +
+  geom_boxplot()
+ggplot(df, aes(x=distance_port_hub, y=logistic_hub)) +
+  geom_boxplot()
+
+ggplot(df, aes(x=distance_hub_customer, y=logistic_hub,color=late_order)) +
+  geom_boxplot()
+ggplot(df, aes(x=distance_hub_customer, y=logistic_hub, color=origin_port)) +
+  geom_boxplot()
+ggplot(df, aes(x=distance_hub_customer, y=logistic_hub)) +
+  geom_boxplot()
+
+ggplot(df, aes(x=distance_total, y=logistic_hub,color=late_order)) +
+  geom_boxplot()
+ggplot(df, aes(x=distance_total, y=logistic_hub, color=origin_port)) +
+  geom_boxplot()
+ggplot(df, aes(x=distance_total, y=logistic_hub)) +
+  geom_boxplot()
+#
+```
+
+
+
+
+
+```{R}
+a<-dplyr::select_if(df, is.numeric)
+names(df)
+#Joined df analysis athenas, bratislava, lille, zaragoza
+aggregate(cbind(distance_total) ~ logistic_hub + origin_port,
+  data = df,
+  mean
+)
+
+aggregate(cbind(distance_port_hub) ~ late_order + origin_port,
+  data = df,
+  mean
+)
+aggregate(cbind(distance_hub_customer,distance_port_hub, distance_total, units, weight) ~ late_order + origin_port,
+  data = df,
+  mean
+)
+
+aggregate(cbind(distance_hub_customer,distance_port_hub, distance_total, units, weight) ~ late_order + logistic_hub,
+  data = df,
+  mean
+)
+aggregate(cbind(distance_hub_customer,distance_port_hub, distance_total, units, weight) ~ late_order + customer,
+  data = df,
+  mean
+)
+aggregate(cbind(distance_hub_customer,distance_port_hub, distance_total, units, weight) ~ late_order + product_id,
+  data = df,
+  mean
+)
+# Scatter plot with regression line
+ggplot(df, aes(x = units, y = log(weight))) + geom_point()
+ggplot(df, aes(x = distance_port_hub, y = distance_hub_customer)) + geom_point()
+#outliers
+boxplot(orders$units)
+boxplot(product$weight)
+ggplot(df, aes(x = distance_total)) +geom_density()
+ggplot(orders, aes(x = units)) +geom_density()
+ggplot(product, aes(x = weight)) +geom_density()
+
+ggplot(df, aes(x=distance_total, y= units, color=late_order)) + 
+  geom_point() + geom_smooth()
+
+ggplot(df, aes(x=units, y= distance_total, color=late_order)) + 
+  geom_point() + geom_smooth()
+ggplot(df, aes(x=log(weight), y= units, color=late_order)) + 
+  geom_point() + geom_smooth()
+
+# la distancia afecta claramente a la probabilidad de producir un delay. Simplemente por tener que recorrer mayor trayecto, es más probable que en algun punto debido a un fenomeno estocastico se produzca una alteración del primer plan.
+Productojodido<-df[df$late_order != TRUE,]# no hay ningun producto que solo tenga delays
+prod<-table(df$product_id, df$late_order)
+produmierda <- prop.table(prod, margin = 1)
+jordi<-which(produmierda[,2]> 0.9)
+length(product$product_id)
+length(jordi)
+df[df$product_id == "1672091",]
+z<-table( df$late_order,df$product_id)
+z<-prop.table(z, margin=1)
+hist(z,  main = "Delay by logistic hub", ylab = "Proportion", col = c("green", "red"), las = 2, width = 0.5, legend.text = TRUE, 
+        args.legend = list(x = "topright",
+                           inset = c(0, 0.70)))
+viajecito<-which(df$logistic_hub == df$customer)# all cases are at rome
+
+#df[product_id ==  1650715] 1613321,1660563 1660578 1662551 1666507
+```
+```{r}
+#Analysis de los peores
+Atenas<-which(df$origin_port == "Athens")
+Atenas<-df[Atenas,]
+AtDelay<-which(Atenas$logistic_hub == c("Lille", "Zaragoza", "Bratislava"))
+summary(Atenas[AtDelay,])
+summary(Atenas)
+summary(df)
+
+```
+
+
+
+
+
