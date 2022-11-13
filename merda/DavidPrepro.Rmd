@@ -48,6 +48,8 @@ setwd("C:/Users/David/Documents/GitHub/")
 orders<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/RAW_DATA/orders.csv", sep = ";")
 product<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/RAW_DATA/product_attributes.csv", sep = ",")
 cities<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/RAW_DATA/cities_data.csv", sep = ";")
+test<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/JOINED_DATA/df_test.csv", sep = ",")
+df<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/JOINED_DATA/df_joined.csv", sep = ",")
 
 
 ```
@@ -57,6 +59,18 @@ cities<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon
 You can also embed plots, for example:
 
 ```{r pressure, echo=FALSE}
+#test preprocesing
+Athens<-which(test$origin_port == "ATHENAS")
+Barcelona<-which(test$origin_port == "BCN")
+test$origin_port[Athens]<-"Athens"
+test$origin_port[Barcelona]<-"Barcelona"
+Null2<-which(test$logistic_hub == '')
+test$logistic_hub<-as.factor(test$logistic_hub)
+levels(test$logistic_hub) <- c(levels(test$logistic_hub), "Direct shipment")
+test$logistic_hub[Null2]<-"Direct shipment"
+#export
+write.csv(test,"C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/JOINED_DATA/PreTest2.csv", row.names = FALSE)
+#EXPORT
 summary(orders)
 Null<-which(orders$logistic_hub == '')
 orders$logistic_hub<-as.factor(orders$logistic_hub)
@@ -121,29 +135,61 @@ res.cat$quanti
 
 
 ```{R}
-names(orders)
+a<-dplyr::select_if(df, is.numeric)
+names(df)
+#Joined df analysis athenas, bratislava, lille, zaragoza
+aggregate(cbind(distance_total) ~ logistic_hub + origin_port,
+  data = df,
+  mean
+)
 
-con.des<-condes(orders[,c(2:9)], num.var=8, proba = 0.05 )
+aggregate(cbind(distance_port_hub) ~ late_order + origin_port,
+  data = df,
+  mean
+)
+aggregate(cbind(distance_hub_customer,distance_port_hub, distance_total, units, weight) ~ late_order + origin_port,
+  data = df,
+  mean
+)
 
-names(orders[,c(2:6,8,9)])
+aggregate(cbind(distance_hub_customer,distance_port_hub, distance_total, units, weight) ~ late_order + logistic_hub,
+  data = df,
+  mean
+)
+aggregate(cbind(distance_hub_customer,distance_port_hub, distance_total, units, weight) ~ late_order + customer,
+  data = df,
+  mean
+)
+aggregate(cbind(distance_hub_customer,distance_port_hub, distance_total, units, weight) ~ late_order + product_id,
+  data = df,
+  mean
+)
+# Scatter plot with regression line
+ggplot(df, aes(x = units, y = log(weight))) + geom_point()
+ggplot(df, aes(x = distance_port_hub, y = distance_hub_customer)) + geom_point()
+#outliers
+boxplot(orders$units)
+boxplot(product$weight)
+ggplot(df, aes(x = distance_total)) +geom_density()
+ggplot(orders, aes(x = units)) +geom_density()
+ggplot(product, aes(x = weight)) +geom_density()
 
-library(FactoMineR)
-fa
-names(orders)
+ggplot(df, aes(x=distance_total, y= units, color=late_order)) + 
+  geom_point() + geom_smooth()
+ggplot(df, aes(x=weight, y= units, color=late_order)) + 
+  geom_point() + geom_smooth()
 
-res.cat=catdes(orders[,c(2:6,8,9)], 7, proba = 0.01) 
-res.cat$test.chi2
-res.cat$category
-res.cat$quanti.var; res.cat$quanti
-
-
-
-res.cat=catdes(orders[,c(4,9)], 2, proba = 0.01) 
-res.cat$test.chi2
-res.cat$category
-res.cat$quanti.var; res.cat$quanti
-
-
+# la distancia afecta claramente a la probabilidad de producir un delay. Simplemente por tener que recorrer mayor trayecto, es más probable que en algun punto debido a un fenomeno estocastico se produzca una alteración del primer plan.
+Productojodido<-df[df$late_order != TRUE,]# no hay ningun producto que solo tenga delays
+prod<-table(df$product_id, df$late_order)> 0.4
+produmierda <- prop.table(prod, margin = 1)
+jordi<-which((produmierda[,2]> 0.4) == TRUE)
+z<-table( df$late_order,df$product_id)
+z<-prop.table(z, margin=1)
+hist(z,  main = "Delay by logistic hub", ylab = "Proportion", col = c("green", "red"), las = 2, width = 0.5, legend.text = TRUE, 
+        args.legend = list(x = "topright",
+                           inset = c(0, 0.70)))
+df[product_id ==  1650715] 1613321,1660563 1660578 1662551 1666507
 ```
 
 
