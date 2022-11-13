@@ -1,0 +1,155 @@
+---
+title: "ACCENTURE"
+output: html_document
+date: "2022-11-12"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+# Clear plots
+if(!is.null(dev.list())) dev.off()
+
+# Clean workspace
+rm(list=ls())
+#library
+library(zoo)
+library(rcompanion)
+library(stats)
+library(dplyr)
+library(fpc)
+library(reshape2)
+library(tidyr)
+library(ggplot2)
+library(stats)
+library(cluster)
+library(factoextra)
+library(colorspace)
+library(ggpubr)
+library(NbClust)
+library(car)
+library(FactoMineR)
+library(lmtest)
+library(effects)
+library(AER)
+library(visdat)
+setwd("C:/Users/David/Documents/GitHub/")
+
+
+orders<-read.csv("./PREPROCED_DATA/orders.csv", sep = ",")
+orders <- orders[,c(2:10)]
+product<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/RAW_DATA/product_attributes.csv", sep = ",")
+cities<-read.csv("C:/Users/David/Documents/GitHub/SupplyChainResilience-Datathon-2022-UPC/RAW_DATA/cities_data.csv", sep = ";")
+
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+summary(orders)
+Null<-which(orders$logistic_hub == '')
+orders$logistic_hub<-as.factor(orders$logistic_hub)
+levels(orders$logistic_hub) <- c(levels(orders$logistic_hub), "Direct shipment")
+orders$logistic_hub[Null]<-"Direct shipment"
+summary(product)
+summary(cities)
+str(orders)
+str(product)
+str(cities)
+vis_miss(orders,warn_large_data = FALSE)
+vis_miss(product)
+vis_miss(cities)
+hist(orders$units, 100)
+hist(product$weight, 20)
+hist(product$material_handling,5)
+boxplot(orders$units)
+qqPlot(orders$units)
+ks.test(orders$units, pnorm)
+barplot(table(orders$origin_port))
+Athens<-which(orders$origin_port == "ATHENAS")
+Barcelona<-which(orders$origin_port == "BCN")
+orders$origin_port[Athens]<-"Athens"
+orders$origin_port[Barcelona]<-"Barcelona"
+#catdes
+names(orders)
+res.cat<-catdes(orders[,c(7,8,9)], num.var = 3, proba = 0.05)
+res.cat$quanti
+
+```
+
+
+
+
+
+```{R}
+names(orders)
+
+con.des<-condes(orders[,c(2:9)], num.var=8, proba = 0.05 )
+
+names(orders[,c(2:6,8,9)])
+
+library(FactoMineR)
+names(orders)
+
+res.cat=catdes(orders[,c(2:6,8,9)], 7, proba = 0.01) 
+res.cat$test.chi2
+res.cat$category
+res.cat$quanti.var; res.cat$quanti
+
+
+
+```
+```{R}
+
+
+
+
+
+
+
+
+i=1
+for (var1 in factorDf[-length(factorDf)]) {
+  factorDf3 <- factorDf[-c(1:i)]
+  j=1
+  for(var2 in factorDf3) {
+    if(attributes(factorDf[i])$names != "Attrition" && attributes(factorDf3[j])$names != "Attrition"){
+      chisq_test <- chisq.test(var1, var2)
+      if(chisq_test$p.value < 0.01) {
+        print(paste0(attributes(factorDf[i])$names, " | ", attributes(factorDf3[j])$names, " | p-value ", chisq_test$p.value))
+        #print(table(var1,var2))
+      }
+    }
+    j=j+1
+  }
+  i=i+1
+}
+
+ggplot(df, aes(Department, ..count..)) + geom_bar(aes(fill = EducationField), position = "dodge")
+ggplot(df, aes(Department, ..count..)) + geom_bar(aes(fill = JobLevel), position = "dodge")
+ggplot(df, aes(Department, ..count..)) + geom_bar(aes(fill = JobRole), position = "dodge")
+ggplot(df, aes(Education, ..count..)) + geom_bar(aes(fill = JobLevel), position = "dodge")
+ggplot(df, aes(EducationField, ..count..)) + geom_bar(aes(fill = JobLevel), position = "dodge")
+ggplot(df, aes(EducationField, ..count..)) + geom_bar(aes(fill = JobRole), position = "dodge")
+ggplot(df, aes(JobLevel, ..count..)) + geom_bar(aes(fill = JobRole), position = "dodge")
+ggplot(df, aes(JobLevel, ..count..)) + geom_bar(aes(fill = StockOptionLevel), position = "dodge")
+ggplot(df, aes(MaritalStatus, ..count..)) + geom_bar(aes(fill = StockOptionLevel), position = "dodge")
+
+
+
+```
+
+
+
+
